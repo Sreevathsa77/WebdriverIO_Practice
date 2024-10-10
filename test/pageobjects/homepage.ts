@@ -1,7 +1,6 @@
 import Page from "./page";
 import { $ } from '@wdio/globals'
 
-let productName = "15mm Combo Wrench";
 class HomePage extends Page {
 
    private get objSearchBarIcon(){
@@ -25,16 +24,13 @@ class HomePage extends Page {
         return $("//div[@id='ProductInfo-template--15328405717213__main']/h1");
     }
 
-    public async ShouldSearchForProduct() {
+    public async ShouldSearchForProduct(productName:string) {
 
         try{
         // let productName = "15mm Combo Wrench";
         await this.objSearchBarIcon.click();
-        await browser.pause(2000);
         await this.objSearchField.setValue(productName);
-        await browser.pause(2000);
         await (await this.objProductName(productName)).click();
-        await browser.pause(2000);
         const actualProductName = await this.objProductTitle.getText();
         await console.log(actualProductName)
         await expect(actualProductName).toEqual(productName);
