@@ -1,0 +1,4 @@
+{
+  "using": "xpath",
+  "value": "//div[@id='ProductInfo-template--15328405717213__main']/h1"
+}
