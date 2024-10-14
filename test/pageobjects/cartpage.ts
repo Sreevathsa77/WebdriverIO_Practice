@@ -23,6 +23,10 @@ class CartPage extends Page {
         return $("//p[@class='totals__subtotal-value']")
     }
 
+    private get objCartCount(){
+        return $("//input[@class='quantity__input']")
+    }
+
     public async validateProductDetails(expectedName: string) {
         let productPrice = await ProductPage.ShouldAddProductToCart(expectedName);
     
@@ -46,6 +50,8 @@ class CartPage extends Page {
     
         // Awaiting getTotal call to avoid unresolved promise
         await this.getTotal(totalAmount, actualProductPrice, discountAmount);
+
+        await this.validateCartItemCount(1);
     }
     
 
@@ -84,6 +90,11 @@ class CartPage extends Page {
         discountAmount = await this.convertStringToNo(discountAmount);
         const finalPriceAfterDiscount = actualProductPrice - discountAmount;
         await expect(finalPriceAfterDiscount).toEqual(totalAmount);
+    }
+
+    public async validateCartItemCount(expectedCount: number) {
+        const itemCount = await this.objCartCount.getText();
+        expect(parseInt(itemCount)).toEqual(expectedCount);
     }
     
     

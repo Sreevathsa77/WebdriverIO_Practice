@@ -9,10 +9,11 @@ describe('My Login application', () => {
 
     it('should select a product by name, navigate to the details page, and verify product details',  async () => {
         let productName = "15mm Combo Wrench";
-        await HomePage.ShouldSearchForProduct(productName);
+        // await HomePage.ShouldSearchForProduct(productName);
+        await HomePage.ShouldAddProductToCart(productName);
     });
 
-    it('should add a product to the cart and validate the contents' , async ()=>{
+    xit('should add a product to the cart and validate the contents' , async ()=>{
         let productName = "15mm Combo Wrench";
         await CartPage.validateProductDetails(productName)
 

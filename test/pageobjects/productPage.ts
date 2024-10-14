@@ -36,6 +36,19 @@ class HomePage extends Page {
         return $("//form[@id='cart-notification-form']/button");
     }
 
+    private get objConfirmationMessage(){
+        return $("//h2[@class='cart-notification__heading caption-large' and contains(text(), 'Item added to your cart')]")
+    }
+
+    private get cartItemCount() {
+        return $("//span[@class='cart-item-count']");
+    }
+ 
+    public async validateCartItemCount(expectedCount: number) {
+        const itemCount = await this.cartItemCount.getText();
+        await expect(parseInt(itemCount)).toEqual(expectedCount);
+    }
+
     public async ShouldSearchForProduct(productName: string) { 
         let productPrice;
         try {
@@ -58,8 +71,9 @@ class HomePage extends Page {
     public async ShouldAddProductToCart(productName: string) {
        let productPrice =  await this.ShouldSearchForProduct(productName);
         try{
-        await this.ShouldSearchForProduct(productName);
         await this.objAddToCart.click();
+        await this.objConfirmationMessage.waitForDisplayed({timeout:3000})
+        await expect(await this.objConfirmationMessage).toBeDisplayed(); 
         await this.objCartIcon.click();
         await this.objCheckout.click();
         }catch(error){
