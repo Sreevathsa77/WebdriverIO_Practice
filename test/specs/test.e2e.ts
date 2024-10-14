@@ -27,9 +27,10 @@ describe('My Login application', () => {
       
     });
     
-
-    after('', async ()=>{
-        await browser.closeWindow();
+    afterEach('', async()=>{
+     await browser.pause(1000); // Pause for 1 second (use judiciously)
+     await CartPage.removeProductsFromCart();
+     await browser.closeWindow();
 
     })
 });

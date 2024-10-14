@@ -147,12 +147,19 @@ class CartPage extends Page {
 
     private get objCartDelete() {
         return $('#Remove-1')
+        // return $$("//*[contains(@id, 'Remove')]")
     }
 
     public async removeProductsFromCart() {
         try {
+            await browser.url("https://web-playground.ultralesson.com/cart")
+            if( await this.objCartDelete.isDisplayed()){
             await this.objCartDelete.waitForClickable({ timeout: 5000 })
             await this.objCartDelete.click();
+            }
+            else{
+                await console.log(`No products are added to cart to delete. Please add some item !!!!`)
+            }
 
             await this.objCartEmptyText.waitForDisplayed({ timeout: 5000 });
             await expect(this.objCartEmptyText).toBeDisplayed();
