@@ -82,6 +82,7 @@ class HomePage extends Page {
         return productPrice;
 
     }
+    
 
 
 

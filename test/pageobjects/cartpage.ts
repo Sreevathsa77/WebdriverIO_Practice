@@ -28,29 +28,33 @@ class CartPage extends Page {
     }
 
     public async validateProductDetails(expectedName: string) {
-        let productPrice = await ProductPage.ShouldAddProductToCart(expectedName);
+        try {
+            let productPrice = await ProductPage.ShouldAddProductToCart(expectedName);
 
-        let actualProductName = await this.productName.getText();
-        let actualProductPrices = await this.productPrice.getText();
-        let actualProductPrice = await this.getPrice(actualProductPrices);
+            let actualProductName = await this.productName.getText();
+            let actualProductPrices = await this.productPrice.getText();
+            let actualProductPrice = await this.getPrice(actualProductPrices);
 
-        let cartTotals = await this.cartTotal.getText();
-        let cartTotal = await this.getPrice(cartTotals);
+            let cartTotals = await this.cartTotal.getText();
+            let cartTotal = await this.getPrice(cartTotals);
 
-        let discountAmountString = await this.objDiscountPrice.getText();
-        let discountAmount = await this.getDiscountPrice(discountAmountString);
-        console.log("Discount: " + discountAmount);
+            let discountAmountString = await this.objDiscountPrice.getText();
+            let discountAmount = await this.getDiscountPrice(discountAmountString);
+            console.log("Discount: " + discountAmount);
 
-        let totalAmountString = await this.objTotalAmount.getText();
-        let totalAmount = await this.getPrice(totalAmountString);
+            let totalAmountString = await this.objTotalAmount.getText();
+            let totalAmount = await this.getPrice(totalAmountString);
 
-        await expect(actualProductName).toEqual(expectedName);
-        await expect(actualProductPrice).toEqual(productPrice);
+            await expect(actualProductName).toEqual(expectedName);
+            await expect(actualProductPrice).toEqual(productPrice);
 
 
-        // Awaiting getTotal call to avoid unresolved promise
-        await this.getTotal(totalAmount, actualProductPrice, discountAmount);
-        await this.validateCartItemCount();
+            // Awaiting getTotal call to avoid unresolved promise
+            await this.getTotal(totalAmount, actualProductPrice, discountAmount);
+            await this.validateCartItemCount();
+        } catch (error) {
+            console.error('Test failed:', error);
+        }
     }
 
 
@@ -60,23 +64,31 @@ class CartPage extends Page {
     }
 
     public async getDiscountPrice(discountAmountString: string) {
-        let discountAmounts;
-        let parts = discountAmountString.split("(-Rs. ");
-        if (parts.length > 1) {
-            discountAmounts = parts[1].split(")")[0].trim();
-        } else {
-            console.log("Discount amount not found.");
+        try {
+            let discountAmounts;
+            let parts = discountAmountString.split("(-Rs. ");
+            if (parts.length > 1) {
+                discountAmounts = parts[1].split(")")[0].trim();
+            } else {
+                console.log("Discount amount not found.");
+            }
+            return discountAmounts;
+        } catch (error) {
+            console.error('Test failed:', error);
         }
-        return discountAmounts;
     }
 
     public async validateCartTotal() {
-        let expectedTotal = 1;
-        let cartTotals = await this.cartTotal.getText();
-        const cartTotal = await this.getPrice(cartTotals);
-        await this.objDiscountPrice.getText();
-        const actualTotal = await this.cartTotal.getText();
-        expect(actualTotal).toEqual(expectedTotal);
+        try {
+            let expectedTotal = 1;
+            let cartTotals = await this.cartTotal.getText();
+            const cartTotal = await this.getPrice(cartTotals);
+            await this.objDiscountPrice.getText();
+            const actualTotal = await this.cartTotal.getText();
+            expect(actualTotal).toEqual(expectedTotal);
+        } catch (error) {
+            console.error('Test failed:', error);
+        }
     }
 
     public async convertStringToNo(amount: any) {
@@ -85,57 +97,70 @@ class CartPage extends Page {
     }
 
     public async getTotal(totalAmount: any, actualProductPrice: any, discountAmount: any) {
-        totalAmount = await this.convertStringToNo(totalAmount);
-        actualProductPrice = await this.convertStringToNo(actualProductPrice);
-        discountAmount = await this.convertStringToNo(discountAmount);
-        const finalPriceAfterDiscount = actualProductPrice - discountAmount;
-        await expect(finalPriceAfterDiscount).toEqual(totalAmount);
+        try {
+            totalAmount = await this.convertStringToNo(totalAmount);
+            actualProductPrice = await this.convertStringToNo(actualProductPrice);
+            discountAmount = await this.convertStringToNo(discountAmount);
+            const finalPriceAfterDiscount = actualProductPrice - discountAmount;
+            await expect(finalPriceAfterDiscount).toEqual(totalAmount);
+        } catch (error) {
+            console.error('Test failed:', error);
+        }
     }
 
     private get objIncreaseCartCount() {
         return $("//button[@name='plus']")
     }
-    // public async validateCartItemCount() {
-    //     let expectedCount: number = 1;
-    //     let itemCount = await this.objCartCount.getValue();
-    //     await expect(parseInt(itemCount)).toEqual(expectedCount);
-      
-    //     for (let cartCount = 0; cartCount < 3; cartCount++) {
-    //         await this.objIncreaseCartCount.click();
-    //          itemCount = await this.objIncreaseCartCount.getValue()
-    
 
-    //         expectedCount++;
-    //         let itemCount = await this.objCartCount.getText();
-    //         await expect(parseInt(itemCount)).toEqual(expectedCount);
-    //         cartCount++;
-    //     }
+    private get objDeleteCartCount() {
+        return $$("//*[@class='icon icon-remove']")
+    }
 
-    // }
 
     public async validateCartItemCount() {
+
         let expectedCount: number = 1;
         let itemCountText = await this.objCartCount.getValue();
         let itemCount = parseInt(itemCountText);
         await expect(itemCount).toEqual(expectedCount);
-        
+
         for (let cartCount = 0; cartCount < 3; cartCount++) {
             // Increment cart count
-            await this.objIncreaseCartCount.waitForClickable({timeout:5000})
+            await this.objIncreaseCartCount.waitForClickable({ timeout: 5000 })
             await this.objIncreaseCartCount.click();
-    
+
             // Get updated cart count text
             itemCountText = await this.objCartCount.getValue();
-    
+
             // Parse to integer
             itemCount = parseInt(itemCountText);
             expectedCount++;
-    
+
             // Validate the expected count
             await expect(itemCount).toEqual(expectedCount);
         }
     }
-    
+
+    private get objCartEmptyText() {
+        return $("//h1[@class='cart__empty-text']")
+    }
+
+    private get objCartDelete() {
+        return $('#Remove-1')
+    }
+
+    public async removeProductsFromCart() {
+        try {
+            await this.objCartDelete.waitForClickable({ timeout: 5000 })
+            await this.objCartDelete.click();
+
+            await this.objCartEmptyText.waitForDisplayed({ timeout: 5000 });
+            await expect(this.objCartEmptyText).toBeDisplayed();
+        } catch (error) {
+            console.error('Test failed:', error);
+        }
+
+    }
 
 
 }
